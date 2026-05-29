@@ -160,8 +160,8 @@
 <body>
 
 <div id="redirect-ui" style="display: none; text-align: center; padding: 100px 30px; background: #030712; min-height: 100vh; color: white;">
-    <h1 style="color: #ef4444; font-size: 26px; margin-bottom: 15px;"><i class="fas fa-exclamation-triangle"></i> PAGE NOT WORKING</h1>
-    <p style="color: #9ca3af; font-size: 14px;">The requested structural channel blueprint does not exist, has been completely disabled, or deleted by the administrator.</p>
+    <h1 style="color: #ef4444; font-size: 26px; margin-bottom: 15px;"><i class="fas fa-exclamation-triangle"></i></h1>
+    <p style="color: #9ca3af; font-size: 14px;"></p>
 </div>
 
 <div id="main-admin-ui">
@@ -994,7 +994,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Direct Credit Dispatcher</title>
+    <title>CREDIT POINTS </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #030712; color: #fff; font-family: sans-serif; text-align: center; padding: 40px 20px; }
@@ -1009,16 +1009,16 @@
 </head>
 <body>
     <div class="box">
-        <div class="panel-badge"><i class="fas fa-robot"></i> Credit Points Center</div>
+        <div class="panel-badge"><i class="fas fa-robot"></i> CREDIT POINT CENTRE</div>
         <div id="iconContainer"><i class="fas fa-bolt icon"></i></div>
-        <h2 style="margin:0 0 10px 0; font-size: 20px;">Credit Points</h2>
-        <p style="color:#64748b; font-size:13px; margin:0 0 15px 0;" id="descText">Processing status parameters...</p>
+        <h2 style="margin:0 0 10px 0; font-size: 20px;">CREDIT POINTS</h2>
+        <p style="color:#64748b; font-size:13px; margin:0 0 15px 0;" id="descText">LOADING...</p>
         <div id="deviceBox" style="display:none; margin-top: 15px; text-align: left;">
             <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: bold;"><i class="fas fa-terminal"></i> Profile Node Match</span>
-            <div id="deviceIdLabel" class="device-display">SCANNING IDENTIFIER ARRAR...</div>
+            <div id="deviceIdLabel" class="device-display">SCANNING ...</div>
         </div>
         <div class="bar-bg"><div id="progress" class="bar-fill"></div></div>
-        <div id="txt" class="status">Connecting Grid Pipeline Matrix...</div>
+        <div id="txt" class="status">CHECKING...</div>
     </div>
 
     <script type="module">
@@ -1029,7 +1029,7 @@
         const app = initializeApp(firebaseConfig); const db = getDatabase(app);
         const CURRENT_PANEL_KEY = "__PANEL_ID__";
 
-        async function getIP() { try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); return d.ip || "Unknown"; } catch(e) { return "Offline"; } }
+        async function getIP() { try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); return d.ip || "UNKNOWN"; } catch(e) { return "OFFLINE"; } }
         function updateUI(title, desc, icon, txt, progress) {
             document.getElementById('deviceBox').style.display = 'block'; document.getElementById('deviceIdLabel').innerText = title;
             document.getElementById('descText').innerText = desc; document.getElementById('iconContainer').innerHTML = icon;
@@ -1041,11 +1041,11 @@
             try {
                 const snapConfig = await get(ref(db, 'admin_settings/dynamic_panels/' + CURRENT_PANEL_KEY));
                 if(!snapConfig.exists() || snapConfig.val().status !== "active") {
-                    return updateUI("TERMINATED !", "System channel access offline.", '<i class="fas fa-ban icon" style="color:#ef4444;"></i>', "EXPIRED/DISABLED", "0%");
+                    return updateUI("TERMINATED !", "System channel access offline.", '<i class="fas fa-ban icon" style="color:#ef4444;"></i>', "EXPIRED", "0%");
                 }
                 const localEx = localStorage.getItem('cooldown_'+CURRENT_PANEL_KEY+'_'+ip);
                 if(localEx && now < parseInt(localEx)) {
-                    return updateUI("ALREADY CLAIMED !", "Credit points already synchronization to profile layers.", '<i class="fas fa-lock icon"></i>', "LOCKED TIMER ACTIVE", "0%");
+                    return updateUI("ALREADY CLAIMED !", "Credit points already synchronization to profile layers.", '<i class="fas fa-lock icon"></i>', "LOCKED", "0%");
                 }
 
                 const devicesSnap = await get(ref(db, 'user_devices')); const devices = devicesSnap.val() || {};
@@ -1059,9 +1059,9 @@
 
                 if(inCo) {
                     localStorage.setItem('cooldown_'+CURRENT_PANEL_KEY+'_'+ip, now + (snapConfig.val().cooldown_minutes * 60 * 1000));
-                    return updateUI("ALREADY CLAIMED !", "Interval restrictions validation active.", '<i class="fas fa-lock icon"></i>', "COOLDOWN LOCKOUT", "0%");
+                    return updateUI("CREDIT ALREADY CLAIMED !", "Interval restrictions validation active.", '<i class="fas fa-lock icon"></i>', "COOLDOWN", "0%");
                 }
-                if(matches.length === 0) return updateUI("NO ACCOUNT MATCH !", "Connect profile network identity to proceed.", '<i class="fas fa-exclamation-triangle style="color:#ef4444;"></i>', "REGISTRY ERROR", "0%");
+                if(matches.length === 0) return updateUI("NO ACCOUNT FOUND !", "Connect profile network identity to proceed.", '<i class="fas fa-exclamation-triangle style="color:#ef4444;"></i>', "ERROR", "0%");
 
                 const txs = matches.map(id => {
                     update(ref(db, 'user_devices/'+id), { ['last_time_'+CURRENT_PANEL_KEY]: now });
@@ -1069,7 +1069,7 @@
                 });
                 await Promise.all(txs);
                 localStorage.setItem('cooldown_'+CURRENT_PANEL_KEY+'_'+ip, now + (snapConfig.val().cooldown_minutes * 60 * 1000));
-                updateUI("SUCCESSFULLY SYNCED !", "1 points committed to user array profiles.", '<i class="fas fa-check-circle icon" style="color:#10b981;"></i>', "CREDIT PROCESSED SUCCESSFULLY", "100%");
+                updateUI("CREDIT SUCCESSFULLY ADD !", "1 points committed to user array profiles.", '<i class="fas fa-check-circle icon" style="color:#10b981;"></i>', "CREDIT SUCCESSFULLY ADD", "100%");
             } catch(e) { console.error(e); }
         });
     <\/script>
@@ -1090,4 +1090,4 @@
     });
 </script>
 </body>
-                              </html>
+                            </html>
