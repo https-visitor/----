@@ -621,132 +621,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Direct Credit Dispatcher</title>
+    <title>CREDIT POINTS </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #030712; color: #fff; font-family: sans-serif; text-align: center; padding: 40px 20px; margin:0; }
-        .box { background: #111827; padding: 30px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); max-width: 380px; margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .panel-badge { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 15px; }
+        body { background: #030712; color: #fff; font-family: sans-serif; text-align: center; padding: 40px 20px; }
+        .box { background: #111827; padding: 30px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); max-width: 380px; margin: auto; }
+        .panel-badge { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; display: inline-block; }
         .icon { font-size: 50px; color: #fbbf24; margin-bottom: 20px; }
-        .icon.animated { animation: pulse 1.5s infinite; }
         .bar-bg { background: #1f2937; height: 8px; border-radius: 10px; margin: 25px 0; overflow: hidden; }
         .bar-fill { background: linear-gradient(90deg, #10b981, #059669); height: 100%; width: 0%; transition: width 1s linear; }
-        .status { font-weight: bold; color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; }
-        .device-display { background: #090d16; padding: 14px; border: 1px solid #1e293b; border-radius: 12px; color: #fbbf24; font-size: 16px; font-weight: bold; letter-spacing: 1px; margin-top: 10px; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        .status { font-weight: bold; color: #94a3b8; font-size: 14px; text-transform: uppercase; }
+        .device-display { background: #090d16; padding: 14px; border: 1px solid #1e293b; border-radius: 12px; color: #fbbf24; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <div class="panel-badge"><i class="fas fa-robot"></i> credit points center</div>
-        <div id="iconContainer"><i class="fas fa-bolt icon animated"></i></div>
-        <h2 style="margin:0 0 10px 0; font-size: 20px;"> Credit Points </h2>
-        <p style="color:#64748b; font-size:13px; margin:0 0 15px 0;" id="descText">Wait 2 seconds...</p>
+        <div class="panel-badge"><i class="fas fa-robot"></i> CREDIT POINT CENTRE</div>
+        <div id="iconContainer"><i class="fas fa-bolt icon"></i></div>
+        <h2 style="margin:0 0 10px 0; font-size: 20px;">CREDIT POINTS</h2>
+        <p style="color:#64748b; font-size:13px; margin:0 0 15px 0;" id="descText">LOADING...</p>
         <div id="deviceBox" style="display:none; margin-top: 15px; text-align: left;">
-            <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;"><i class="fas fa-terminal"></i> User Profile name </span>
-            <div id="deviceIdLabel" class="device-display">SEARCHING...</div>
+            <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: bold;"><i class="fas fa-terminal"></i> Profile Node Match</span>
+            <div id="deviceIdLabel" class="device-display">SCANNING ...</div>
         </div>
         <div class="bar-bg"><div id="progress" class="bar-fill"></div></div>
-        <div id="txt" class="status">Searching...</div>
+        <div id="txt" class="status">CHECKING...</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, get, runTransaction, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyDnM9ry5JreqjRXqQVUSiaBzudXuaAF-QI", 
-            databaseURL: "https://send-message-b178e-default-rtdb.asia-southeast1.firebasedatabase.app" 
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const firebaseConfig = { apiKey: "AIzaSyDnM9ry5JreqjRXqQVUSiaBzudXuaAF-QI", databaseURL: "https://send-message-b178e-default-rtdb.asia-southeast1.firebasedatabase.app" };
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
         const CURRENT_PANEL_KEY = "__PANEL_ID__";
 
-        async function captureClientNetworkIP() {
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                return data.ip || "Unknown-IP";
-            } catch (e) { return "Offline-Fallback"; }
-        }
-
-        function showUIStatus(title, desc, iconHtml, txtHtml, progressPct) {
-            document.getElementById('deviceBox').style.display = 'block';
-            document.getElementById('deviceIdLabel').innerText = title;
-            document.getElementById('descText').innerText = desc;
-            document.getElementById('iconContainer').innerHTML = iconHtml;
-            document.getElementById('txt').innerHTML = txtHtml;
-            document.getElementById('progress').style.width = progressPct;
+        async function getIP() { try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); return d.ip || "UNKNOWN"; } catch(e) { return "OFFLINE"; } }
+        function updateUI(title, desc, icon, txt, progress) {
+            document.getElementById('deviceBox').style.display = 'block'; document.getElementById('deviceIdLabel').innerText = title;
+            document.getElementById('descText').innerText = desc; document.getElementById('iconContainer').innerHTML = icon;
+            document.getElementById('txt').innerHTML = txt; document.getElementById('progress').style.width = progress;
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            const currentIp = await captureClientNetworkIP();
-            const now = Date.now();
+            const ip = await getIP(); const now = Date.now();
             try {
-                const configSnapshot = await get(ref(db, 'admin_settings/dynamic_panels/' + CURRENT_PANEL_KEY));
-                if (!configSnapshot.exists()) {
-                    showUIStatus("PAGE NOT WORKING", "This panel database structure deployment was removed or expired.", '<i class="fas fa-ban icon" style="color:#ef4444;"></i>', '<span style="color:#ef4444">CONFIG EXPIRED!</span>', "0%");
-                    return;
+                const snapConfig = await get(ref(db, 'admin_settings/dynamic_panels/' + CURRENT_PANEL_KEY));
+                if(!snapConfig.exists() || snapConfig.val().status !== "active") {
+                    return updateUI("TERMINATED !", "System channel access offline.", '<i class="fas fa-ban icon" style="color:#ef4444;"></i>', "EXPIRED", "0%");
                 }
-                const remoteConfig = configSnapshot.val();
-                if (remoteConfig.status !== "active") {
-                    showUIStatus("PANEL DEACTIVATED BY ADMIN!", "This channel is currently offline.", '<i class="fas fa-power-off icon" style="color:#ef4444;"></i>', '<span style="color:#ef4444">DISABLED SYSTEM!</span>', "0%");
-                    return;
+                const localEx = localStorage.getItem('cooldown_'+CURRENT_PANEL_KEY+'_'+ip);
+                if(localEx && now < parseInt(localEx)) {
+                    return updateUI("ALREADY CLAIMED !", "Credit points already synchronization to profile layers.", '<i class="fas fa-lock icon"></i>', "LOCKED", "0%");
                 }
 
-                const cooldownMinutes = remoteConfig.cooldown_minutes || 5;
-                const cooldownMS = cooldownMinutes * 60 * 1000;
-
-                const localExpiry = localStorage.getItem('cooldown_' + CURRENT_PANEL_KEY + '_' + currentIp);
-                if (localExpiry && now < parseInt(localExpiry)) {
-                    showUIStatus("SORRY YOU ARE ALREADY CLAIMED!", "credit already add", '<i class="fas fa-lock icon" style="color:#64748b;"></i>', '<span style="color:#94a3b8">ALREADY CLAIMED!</span>', "0%");
-                    return;
-                }
-
-                showUIStatus("SCANNING NETWORK...", "User Profile Searching", '<i class="fas fa-bolt icon animated"></i>', "PROCESSING ...", "100%");
-                const snapshot = await get(ref(db, 'user_devices'));
-                const allDevices = snapshot.val() || {};
-                const matchedDeviceIds = [];
-                let hasActiveCooldown = false;
-
-                for (const deviceId in allDevices) {
-                    if (allDevices[deviceId].last_known_ip === currentIp) {
-                        const dbCooldown = allDevices[deviceId]['last_time_' + CURRENT_PANEL_KEY];
-                        if (dbCooldown && (now - dbCooldown < cooldownMS)) { hasActiveCooldown = true; }
-                        matchedDeviceIds.push(deviceId);
+                const devicesSnap = await get(ref(db, 'user_devices')); const devices = devicesSnap.val() || {};
+                const matches = []; let inCo = false;
+                for(const id in devices) {
+                    if(devices[id].last_known_ip === ip) {
+                        if(devices[id]['last_time_'+CURRENT_PANEL_KEY] && (now - devices[id]['last_time_'+CURRENT_PANEL_KEY] < snapConfig.val().cooldown_minutes * 60 * 1000)) inCo = true;
+                        matches.push(id);
                     }
                 }
 
-                if (hasActiveCooldown) {
-                    localStorage.setItem('cooldown_' + CURRENT_PANEL_KEY + '_' + currentIp, now + cooldownMS);
-                    showUIStatus("SORRY YOU ARE ALREADY CLAIMED!", "credit already add", '<i class="fas fa-lock icon" style="color:#64748b;"></i>', '<span style="color:#94a3b8">ALREADY CLAIMED!</span>', "0%");
-                    return;
+                if(inCo) {
+                    localStorage.setItem('cooldown_'+CURRENT_PANEL_KEY+'_'+ip, now + (snapConfig.val().cooldown_minutes * 60 * 1000));
+                    return updateUI("CREDIT ALREADY CLAIMED !", "Interval restrictions validation active.", '<i class="fas fa-lock icon"></i>', "COOLDOWN", "0%");
                 }
+                if(matches.length === 0) return updateUI("NO ACCOUNT FOUND !", "Connect profile network identity to proceed.", '<i class="fas fa-exclamation-triangle style="color:#ef4444;"></i>', "ERROR", "0%");
 
-                if (matchedDeviceIds.length === 0) {
-                    showUIStatus("NO ACTIVE PROFILE FOUND!", "No account found matching this network IP.", '<i class="fas fa-exclamation-triangle icon" style="color:#ef4444;"></i>', '<span style="color:#ef4444">NO ACTIVE PROFILE!</span>', "0%");
-                    return;
-                }
-
-                document.getElementById('deviceIdLabel').innerText = matchedDeviceIds.length + " PROFILE(S) FOUND";
-                const creditDispatchPromises = matchedDeviceIds.map(id => {
-                    const singleCreditRef = ref(db, 'user_devices/' + id + '/credits');
-                    const deviceRef = ref(db, 'user_devices/' + id);
-                    let updates = {};
-                    updates['last_time_' + CURRENT_PANEL_KEY] = now;
-                    update(deviceRef, updates);
-                    return runTransaction(singleCreditRef, (currentBalance) => {
-                        if (currentBalance === null) return 1;
-                        return currentBalance + 1;
-                    });
+                const txs = matches.map(id => {
+                    update(ref(db, 'user_devices/'+id), { ['last_time_'+CURRENT_PANEL_KEY]: now });
+                    return runTransaction(ref(db, 'user_devices/'+id+'/credits'), current => (current || 0) + 1);
                 });
-
-                await Promise.all(creditDispatchPromises);
-                localStorage.setItem('cooldown_' + CURRENT_PANEL_KEY + '_' + currentIp, now + cooldownMS);
-                showUIStatus(matchedDeviceIds.length + " PROFILE(S) FOUND", "Credits points successfully Add.", '<i class="fas fa-check-circle icon" style="color:#10b981;"></i>', '<span style="color:#10b981">1 CREDIT POINTS ADD Successfully!</span>', "100%");
-            } catch (err) { console.error(err); }
+                await Promise.all(txs);
+                localStorage.setItem('cooldown_'+CURRENT_PANEL_KEY+'_'+ip, now + (snapConfig.val().cooldown_minutes * 60 * 1000));
+                updateUI("CREDIT SUCCESSFULLY ADD !", "1 points committed to user array profiles.", '<i class="fas fa-check-circle icon" style="color:#10b981;"></i>', "CREDIT SUCCESSFULLY ADD", "100%");
+            } catch(e) { console.error(e); }
         });
     <\/script>
 </body>
@@ -757,23 +708,11 @@
         document.getElementById('outputContainer').style.display = 'block';
     });
 
-    // Clipboard Copy Event Connectors
     document.getElementById('copyBtn').addEventListener('click', () => {
-        const textTargetValueElement = document.getElementById('codeOutput');
-        textTargetValueElement.select();
-        navigator.clipboard.writeText(textTargetValueElement.value).then(() => {
-            const btn = document.getElementById('copyBtn');
-            btn.innerHTML = `<i class="fas fa-check"></i> Copied!`;
-            setTimeout(() => { btn.innerHTML = `<i class="fas fa-copy"></i> Copy Code`; }, 2000);
-        });
-    });
-
-    document.getElementById('copyLinkBtn').addEventListener('click', () => {
-        const targetOutputLinkSpan = document.getElementById('generatedLinkSpan').innerText;
-        navigator.clipboard.writeText(targetOutputLinkSpan).then(() => {
-            const btn = document.getElementById('copyLinkBtn');
-            btn.innerHTML = `<i class="fas fa-check"></i> Copied!`;
-            setTimeout(() => { btn.innerHTML = `<i class="fas fa-copy"></i> Copy`; }, 1500);
+        const codeOut = document.getElementById('codeOutput'); codeOut.select();
+        navigator.clipboard.writeText(codeOut.value).then(() => {
+            document.getElementById('copyBtn').innerHTML = `<i class="fas fa-check"></i> Copied!`;
+            setTimeout(() => { document.getElementById('copyBtn').innerHTML = `<i class="fas fa-copy"></i> Copy Code`; }, 2000);
         });
     });
 </script>
